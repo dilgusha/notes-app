@@ -1,6 +1,6 @@
 const { noteService } = require("../services/index")
 
-const createNote = async (req, res) => {
+const createNote = async (req, res, next) => {
     try {
         const { user } = req
         let params = { ...req.body, userId: user.id }
@@ -10,42 +10,24 @@ const createNote = async (req, res) => {
             message: 'Note created',
             note
         })
-    } catch (err) {
-        res.status(409).json({
-            message: err?.message
-        })
+    } catch (error) {
+        next(error)
     }
-}
-const findAll = async (req, res) => {
-    const { user } = req
-    try {
-        let note = await noteService.findAlls(user.id);
-        console.log(note);
-        res.json(note);
-    } catch (err) {
-        res.status(500).json({
-            message: err?.message
-        })
-    }
-}
 
-const findNoteByNote = async (req, res) => {
-    try {
-        let note = await noteService.findNoteByNote(req.params.id, req.user.id)
-        if (note) {
-            res.json(note);
-        } else {
-            res.status(404).json({
-                message: 'Note not found'
-            })
-        }
-    } catch (err) {
-        res.status(500).json({
-            message: err?.message
-        })
-    }
 }
-const updateNote = async (req, res) => {
+const findAll = async (req, res, next) => {
+    try {
+      const { user } = req;
+  
+      const notes = await noteService.findUserNotes(user.id);
+      res.json(notes);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+
+const updateNote = async (req, res, next) => {
     try {
         let note = await noteService.updateNote(req.params.id, req.body, req.user.id);
         if (note) {
@@ -58,14 +40,14 @@ const updateNote = async (req, res) => {
                 message: 'Note not found'
             });
         }
-    } catch (err) {
-        res.status(500).json({
-            message: err?.message
-        });
+
+    } catch (error) {
+        next(error)
     }
+
 };
 
-const deleteNote = async (req, res) => {
+const deleteNote = async (req, res, next) => {
     try {
         let note = await noteService.deleteNote(req.params.id, req.user.id);
         if (note === 'Deleted Note') {
@@ -77,16 +59,15 @@ const deleteNote = async (req, res) => {
                 message: 'Note not found'
             });
         }
-    } catch (err) {
-        res.status(500).json({
-            message: err?.message
-        })
+
+    } catch (error) {
+        next(error)
     }
+
 }
 module.exports = {
     createNote,
     findAll,
-    findNoteByNote,
     deleteNote,
     updateNote
 }

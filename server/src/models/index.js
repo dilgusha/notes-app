@@ -1,14 +1,16 @@
-const Notes = require("./Notes")
-const User = require("./User")
+require('../database');
+const Notes = require("./Notes");
+const User = require("./User");
 
+User.hasMany(Notes, {
+    foreignKey: "userId",
+    onDelete: "Cascade",
+})
+Notes.belongsTo(User, {
+    foreignKey: "userId"
+})
 
-module.exports = () => {
-    Notes.belongsTo(User, {
-        foreignKey: "userId",
-        as: "user"
-    })
-    User.hasMany(Notes, {
-        foreignKey: "userId",
-        as: "notes",
-    })
+module.exports = {
+    Notes,
+    User,
 }
